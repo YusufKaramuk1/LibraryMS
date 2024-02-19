@@ -17,7 +17,7 @@ class Library:
             print("List of books:")
             for book in books:
                 book_info = book.split(',')
-                print(f"- Title: {book_info[0]}, Author: {book_info[1]}")
+                print(f"- Title: {book_info[0]}, Author: {book_info[1]}, Genre: {book_info[2]}, Pages: {book_info[4]}")
         else:
             print("No books found in the library.")
 
@@ -145,11 +145,25 @@ class Library:
         if not found:
             print("No books found by this author.")
 
+    def filter_books_by_genre(self):
+        genre = input("Enter the genre to filter books: ")
+        self.file.seek(0)
+        books = self.file.readlines()
+        found = False
+        print(f"Books in genre '{genre}':")
+        for book in books:
+            book_info = book.strip().split(',')
+            if book_info[2] == genre:
+                print(f"- Title: {book_info[0]}, Author: {book_info[1]}, Genre: {book_info[2]}")
+                found = True
+        if not found:
+            print("No books found in this genre.")
+
     def filter_books_by_pages(self):
         self.file.seek(0)
         books = self.file.readlines()
         books.sort(key=lambda x: int(x.strip().split(',')[4]), reverse=True)
-        print("Books sorted by number of pages (descending):")
+        print("Books sorted by number of pages:")
         for book in books:
             book_info = book.strip().split(',')
             print(f"- Title: {book_info[0]}, Author: {book_info[1]}, Number of Pages: {book_info[4]}")
@@ -172,7 +186,7 @@ class Library:
 
         sorted_books = sorted(average_ratings.items(), key=lambda x: x[1], reverse=True)
 
-        print("Books sorted by average rating (descending):")
+        print("Books sorted by average rating:")
         for title, avg_rating in sorted_books:
             print(f"- Title: {title}, Average Rating: {avg_rating}")
 
@@ -182,10 +196,11 @@ class Library:
         print("b) Filter Books by Author")
         print("c) Sort Books by Number of Pages")
         print("d) Sort Books by Average Rating")
-        print("e) Return to Main Menu")
+        print("e) Filter Books by Genre")
+        print("f) Return to Main Menu")
 
     def print_menu(self):
-        print("-- MAIN MENU --")
+        print(" *** MAIN MENU***")
         print("1) List Books")
         print("2) Add Book")
         print("3) Remove Book")
@@ -210,7 +225,7 @@ class Library:
                 
                 while True:
                     self.print_filter_menu()
-                    filter_choice = input("Enter your choice (a/b/c/d/e): ")
+                    filter_choice = input("Enter your choice (a/b/c/d/e/f): ")
                     if filter_choice == "a":
                         self.filter_books_by_year()
                     elif filter_choice == "b":
@@ -220,6 +235,8 @@ class Library:
                     elif filter_choice == "d":
                         self.filter_books_by_average_rating()
                     elif filter_choice == "e":
+                        self.filter_books_by_genre()
+                    elif filter_choice == "f":
                         break
                     else:
                         print("Invalid choice. Please try again.")
