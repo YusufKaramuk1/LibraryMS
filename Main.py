@@ -12,19 +12,19 @@ class Library:
 
     def list_books(self):
         self.file.seek(0)
-        books = self.file.readlines()
+        books = self.file.read().splitlines()
         if books:
             print("List of books:")
             for book in books:
-                book_info = book.strip().split(',')
-                print(f"- Title: {book_info[0]}, Author: {book_info[1]}, Genre: {book_info[2]}")  #I added genre
+                book_info = book.split(',')
+                print(f"- Title: {book_info[0]}, Author: {book_info[1]}")
         else:
             print("No books found in the library.")
 
     def add_book(self):
         title = input("Enter the book title: ")
         author = input("Enter the book author: ")
-        genre = input("Enter the genre of the book: ")  #We got the genre of the book as an extra filter
+        genre = input("Enter the genre of the book: ")
         release_year = input("Enter the first release year: ")
         num_pages = input("Enter the number of pages: ")
 
@@ -33,7 +33,6 @@ class Library:
         print("Book added successfully.")
 
     def remove_book(self):
-        
         self.file.seek(0)
         books = self.file.readlines()
         if not books:
@@ -60,13 +59,16 @@ class Library:
             print(f"Book '{title_to_remove}' not found in the library.")
 
     def remove_ratings_and_comments(self, title):
-        with open("ratings_comments.txt", "r+") as rc_file:
-            lines = rc_file.readlines()
-            rc_file.seek(0)
-            for line in lines:
-                if not line.startswith(title + ','):
-                    rc_file.write(line)
-            rc_file.truncate()
+        try:
+            with open("ratings_comments.txt", "r+") as rc_file:
+                lines = rc_file.readlines()
+                rc_file.seek(0)
+                for line in lines:
+                    if not line.startswith(title + ','):
+                        rc_file.write(line)
+                rc_file.truncate()
+        except:
+            passthisline = 0
 
     def rate_book(self):
         title = input("Enter the title of the book to rate: ")
@@ -123,7 +125,7 @@ class Library:
     def filter_books_by_year(self):
         self.file.seek(0)
         books = self.file.readlines()
-        books.sort(key=lambda x: int(x.strip().split(',')[3]), reverse=True)  #I added an extra filtering system that sorts books by publication year in descending order. 
+        books.sort(key=lambda x: int(x.strip().split(',')[3]), reverse=True)
         print("Books sorted by release year (descending):")
         for book in books:
             book_info = book.strip().split(',')
@@ -174,65 +176,67 @@ class Library:
         for title, avg_rating in sorted_books:
             print(f"- Title: {title}, Average Rating: {avg_rating}")
 
-def print_filter_menu():
-    print(" -- FILTER MENU -- ")
-    print("a) Sort Books by Release Year")
-    print("b) Filter Books by Author")
-    print("c) Sort Books by Number of Pages")
-    print("d) Sort Books by Average Rating")
-    print("e) Return to Main Menu")
+    def print_filter_menu(self):
+        print(" -- FILTER MENU -- ")
+        print("a) Sort Books by Release Year")
+        print("b) Filter Books by Author")
+        print("c) Sort Books by Number of Pages")
+        print("d) Sort Books by Average Rating")
+        print("e) Return to Main Menu")
 
-def print_menu():
-    print("-- MAIN MENU --")
-    print("1) List Books")
-    print("2) Add Book")
-    print("3) Remove Book")
-    print("4) Filter Books")
-    print("5) Rate a Book")
-    print("6) View Average Rating for a Book")
-    print("7) View Ratings and Comments for a Book")
-    print("8) Quit")
+    def print_menu(self):
+        print("-- MAIN MENU --")
+        print("1) List Books")
+        print("2) Add Book")
+        print("3) Remove Book")
+        print("4) Filter Books")
+        print("5) Rate a Book")
+        print("6) View Average Rating for a Book")
+        print("7) View Ratings and Comments for a Book")
+        print("8) Quit")
 
-lib = Library("books.txt")
-#Our main loop
-while True:
-    print_menu()
-    menu_choice = input("Enter your choice (1/2/3/4/5/6/7/8): ")
-
-    if menu_choice == "1":
-        lib.list_books()
-    elif menu_choice == "2":
-        lib.add_book()
-    elif menu_choice == "3":
-        lib.remove_book()
-    elif menu_choice == "4":
-        # Sub-menu for filtering
+    def run(self):
         while True:
-            print_filter_menu()
-            filter_choice = input("Enter your choice (a/b/c/d/e): ")
-            if filter_choice == "a":
-                lib.filter_books_by_year()
-            elif filter_choice == "b":
-                lib.filter_books_by_author()
-            elif filter_choice == "c":
-                lib.filter_books_by_pages()
-            elif filter_choice == "d":
-                lib.filter_books_by_average_rating()
-            elif filter_choice == "e":
+            self.print_menu()
+            menu_choice = input("Enter your choice (1/2/3/4/5/6/7/8): ")
+
+            if menu_choice == "1":
+                self.list_books()
+            elif menu_choice == "2":
+                self.add_book()
+            elif menu_choice == "3":
+                self.remove_book()
+            elif menu_choice == "4":
+                
+                while True:
+                    self.print_filter_menu()
+                    filter_choice = input("Enter your choice (a/b/c/d/e): ")
+                    if filter_choice == "a":
+                        self.filter_books_by_year()
+                    elif filter_choice == "b":
+                        self.filter_books_by_author()
+                    elif filter_choice == "c":
+                        self.filter_books_by_pages()
+                    elif filter_choice == "d":
+                        self.filter_books_by_average_rating()
+                    elif filter_choice == "e":
+                        break
+                    else:
+                        print("Invalid choice. Please try again.")
+            elif menu_choice == "5":
+                self.rate_book()
+            elif menu_choice == "6":
+                title = input("Enter the title of the book: ")
+                self.view_average_rating(title)
+            elif menu_choice == "7":
+                title = input("Enter the title of the book: ")
+                self.view_ratings_and_comments(title)
+            elif menu_choice == "8":
                 break
             else:
                 print("Invalid choice. Please try again.")
-    elif menu_choice == "5":
-        lib.rate_book()
-    elif menu_choice == "6":
-        title = input("Enter the title of the book: ")
-        lib.view_average_rating(title)
-    elif menu_choice == "7":
-        title = input("Enter the title of the book: ")
-        lib.view_ratings_and_comments(title)
-    elif menu_choice == "8":
-        break
-    else:
-        print("Invalid choice. Please try again.")
 
-print("You have quitted from the program.")
+        print("You have quitted from the program.")
+
+lib = Library("books.txt")
+lib.run()
